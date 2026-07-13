@@ -140,16 +140,23 @@ class PS5StereoNode(Node):
     def capture_loop(self):
         # Calculate target sleep to match frame rate
         sleep_time = 1.0 / self.fps
+        frame_count = 0
+        print("[ps5_stereo_node] Capture thread loop started.", flush=True)
         
         while self.running and rclpy.ok():
             start_t = time.time()
             ret, frame = self.cap.read()
             
             if not ret or frame is None:
+                print("[ps5_stereo_node] Failed to capture image frame from PS5 camera. Retrying...", flush=True)
                 self.get_logger().warn("Failed to capture image frame from PS5 camera.")
-                time.sleep(0.01)
+                time.sleep(0.2)  # Increase sleep on failure to prevent high CPU load
                 continue
                 
+            frame_count += 1
+            if frame_count % 30 == 0:
+                print(f"[ps5_stereo_node] Captured {frame_count} frames. Shape: {frame.shape}", flush=True)
+
             # Get current stamp
             stamp = self.get_clock().now().to_msg()
             
@@ -179,6 +186,7 @@ class PS5StereoNode(Node):
                 self.left_info_pub.publish(self.left_info)
                 self.right_info_pub.publish(self.right_info)
             except Exception as e:
+                print(f"[ps5_stereo_node] Error publishing frames: {e}", flush=True)
                 self.get_logger().error(f"Error publishing frames: {e}")
             
             # Control frame rate
