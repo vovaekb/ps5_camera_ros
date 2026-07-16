@@ -94,7 +94,7 @@ cd ~/ros2_ws/src
 git clone https://github.com/vovaekb/ps5_camera_ros.git
 cd ~/ros2_ws
 rosdep install --from-paths src --ignore-src -r -y
-colcon build --packages-select ps5_camera_ros
+colcon build --packages-select ps5_camera
 source install/setup.bash
 ```
 
@@ -102,5 +102,5 @@ source install/setup.bash
 Launch the driver node by passing the verified video device configuration path:
 
 ```bash
-ros2 launch ps5_camera_ros ps5_camera.launch.py video_device:=/dev/video0
+ros2 run ps5_camera ps5_stereo_node
 ```
