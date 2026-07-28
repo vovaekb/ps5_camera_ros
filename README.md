@@ -27,14 +27,14 @@ sudo apt install build-essential git libusb-1.0-0-dev pkg-config
 ```
 
 ### Step 2: Extract the Firmware
-Due to copyright restrictions, the proprietary Sony firmware binary (`firmware.bin`) cannot be directly redistributed in this repository. You must obtain it either from an official PlayStation 5 update or use public third-party tools to extract it.
+Due to copyright restrictions, the proprietary Sony firmware binary (`firmware.bin`) cannot be directly redistributed in this repository. You must obtain it either from an official PlayStation 5 update or use public third-party tools to extract it. You can download it [here](https://github.com/Hackinside/PS5_camera_files).
 
 Place your extracted file inside a dedicated directory on your system, for example:
 `/usr/local/lib/ps5-camera/firmware.bin`
 
 ### Step 3: Install a Firmware Loader
 The system needs an application capable of pushing the `firmware.bin` to the device over USB. 
-You can use popular open-source loaders such as the Rust-based `PlayStation-Camera-Firmware-Loader` or Python/C-based wrappers available on GitHub (e.g., `ps5_hdcam` utilities). 
+You can use popular open-source loaders such as the Rust-based `PlayStation-Camera-Firmware-Loader` or Python/C-based wrappers available on GitHub (e.g., [ps5_hdcam](https://github.com/raleighlittles/PlayStation-Camera-Firmware-Loader) utilities). 
 
 Ensure the loader binary is compiled and accessible. For this guide, we assume the command to load firmware is available at `/usr/local/bin/ps5_cam_load`.
 
@@ -94,7 +94,7 @@ cd ~/ros2_ws/src
 git clone https://github.com/vovaekb/ps5_camera_ros.git
 cd ~/ros2_ws
 rosdep install --from-paths src --ignore-src -r -y
-colcon build --packages-select ps5_camera_ros
+colcon build --packages-select ps5_camera
 source install/setup.bash
 ```
 
@@ -102,5 +102,5 @@ source install/setup.bash
 Launch the driver node by passing the verified video device configuration path:
 
 ```bash
-ros2 launch ps5_camera_ros ps5_camera.launch.py video_device:=/dev/video0
+ros2 run ps5_camera ps5_stereo_node
 ```
