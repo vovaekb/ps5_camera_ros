@@ -2,8 +2,7 @@ import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
+from launch_ros.actions import Node
 
 def generate_launch_description():
     default_left_yaml = '/home/vlad/left.yaml'
@@ -32,7 +31,15 @@ def generate_launch_description():
             description='Use approximate sync for stereo_image_proc'
         ),
 
-        # 1. PS5 Stereo Camera Driver Node
+        # 1. Static TF Publisher (map -> camera_link_optical)
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_tf_pub',
+            arguments=['0', '0', '0', '0', '0', '0', 'map', 'camera_link_optical']
+        ),
+
+        # 2. PS5 Stereo Camera Driver Node
         Node(
             package='ps5_camera',
             executable='ps5_stereo_node',
@@ -49,30 +56,48 @@ def generate_launch_description():
             }]
         ),
 
-        # 2. Stereo Image Processing Container (Disparity + PointCloud)
-        ComposableNodeContainer(
-            name='stereo_image_proc_container',
-            namespace='',
-            package='rclcpp_components',
-            executable='component_container',
-            composable_node_descriptions=[
-                ComposableNode(
-                    package='stereo_image_proc',
-                    plugin='stereo_image_proc::DisparityNode',
-                    name='disparity_node',
-                    parameters=[{
-                        'approximate_sync': LaunchConfiguration('approximate_sync'),
-                    }]
-                ),
-                ComposableNode(
-                    package='stereo_image_proc',
-                    plugin='stereo_image_proc::PointCloudNode',
-                    name='point_cloud_node',
-                    parameters=[{
-                        'approximate_sync': LaunchConfiguration('approximate_sync'),
-                    }]
-                ),
-            ],
+        # 3. Image Proc for Left Camera (Produces /left/image_rect)
+        Node(
+            package='image_proc',
+            executable='image_proc',
+            name='left_image_proc',
+            namespace='left',
             output='screen',
-        )
+            remappings=[('image', 'image_raw')]
+        ),
+
+        # 4. Image Proc for Right Camera (Produces /right/image_rect)
+        Node(
+            package='image_proc',
+            executable='image_proc',
+            name='right_image_proc',
+            namespace='right',
+            output='screen',
+            remappings=[('image', 'image_raw')]
+        ),
+
+        # 5. Disparity Node (Produces /disparity)
+        Node(
+            package='stereo_image_proc',
+            executable='disparity_node',
+            name='disparity_node',
+            output='screen',
+            parameters=[{
+                'approximate_sync': True,
+            }]
+        ),
+
+        # 6. PointCloud Node (Produces /points2)
+        Node(
+            package='stereo_image_proc',
+            executable='point_cloud_node',
+            name='point_cloud_node',
+            output='screen',
+            parameters=[{
+                'approximate_sync': True,
+            }],
+            remappings=[
+                ('left/image_rect_color', 'left/image_rect'),
+            ]
+        ),
     ])
