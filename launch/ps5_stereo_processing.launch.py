@@ -35,8 +35,8 @@ def generate_launch_description():
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
-            name='static_tf_pub',
-            arguments=['0', '0', '0', '0', '0', '0', 'map', 'camera_link_optical']
+            name='camera_to_optical_tf',
+            arguments=['0', '0', '0', '-1.5707963', '0', '-1.5707963', 'camera_link', 'camera_link_optical']
         ),
 
         # 2. PS5 Stereo Camera Driver Node
