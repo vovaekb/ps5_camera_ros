@@ -131,6 +131,8 @@ def generate_launch_description():
             executable='disparity_color_node',
             name='disparity_color_node',
             output='screen',
+            respawn=True,
+            respawn_delay=2.0,
             parameters=[{
                 'colormap': 'TURBO',
             }]
