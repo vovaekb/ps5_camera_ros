@@ -97,13 +97,18 @@ def generate_launch_description():
                     name='disparity_node',
                     namespace='',
                     parameters=[{
-                        'stereo_algorithm': 0,          # 0 = StereoBM (30 FPS), 1 = StereoSGBM
+                        'stereo_algorithm': 1,          # 0 = StereoBM (30 FPS), 1 = StereoSGBM
                         'approximate_sync': True,
-                        'queue_size': 30,
-                        'correlation_window_size': 15,
+                        'queue_size': 2,
+                        'correlation_window_size': 13,
                         'min_disparity': 0,
                         'disparity_range': 128,
-                        'uniqueness_ratio': 15.0,
+                        'uniqueness_ratio': 5.0,
+                        'P1': 1350.0,                         # 8 * 1 * 9^2 (для сглаживания граней)
+                        'P2': 4000.0,                        # 32 * 1 * 9^2 (для сплошных поверхностей)
+                        'speckle_size': 150,                 # Фильтр мелких шумов
+                        'speckle_range': 4,
+                        'full_dp': False,
                     }]
                 ),
                 # PointCloud Node
